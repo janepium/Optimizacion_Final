@@ -1,5 +1,14 @@
+#La interfaz Streamlit.
+
+#Aquí van:
+
+#botones
+#formularios
+#tablas
+#navegación
+
 import streamlit as st
 
-st.title("Simplex Optimizer")
+st.title("Programación Lineal (PL)")
 
-st.write("Proyecto de Optimización Lineal")
+st.write("Proyecto de Programación Lineal")
