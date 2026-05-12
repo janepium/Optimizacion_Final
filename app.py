@@ -7,13 +7,17 @@
 #tablas
 #navegación
 
+#RECOGE DATOS DEL USUARIO Y LOS PROCESA.
+
 import streamlit as st
 import pandas as pd
+
 from simplex.parser import build_problem
+from simplex.simplex_solver import SimplexSolver
 
 st.set_page_config(page_title="Simplex Optimizer", layout="wide")
 
-st.title("📈 Simplex Optimizer")
+st.title("Simplex Optimizer")
 st.write("Ingrese un problema de Programación Lineal")
 
 # =========================
@@ -123,6 +127,11 @@ if st.button("Resolver Problema"):
         objective_coeffs,
         constraints
     )
+    solver = SimplexSolver(
+    objective=problem_data["objective"],
+    constraints=problem_data["constraints"]
+    )
+    result = solver.solve()
 
     st.success("Problema cargado correctamente")
 
@@ -138,3 +147,20 @@ if st.button("Resolver Problema"):
 
     constraints_df = pd.DataFrame(problem_data["constraints"])
     st.dataframe(constraints_df)
+
+    st.subheader("Resultado Óptimo")
+
+st.write("### Variables de decisión")
+
+for i, value in enumerate(result["solution"]):
+    st.write(f"X{i+1} = {value:.2f}")
+
+st.write("### Valor Óptimo")
+
+st.success(f"Z = {result['optimal_value']:.2f}")
+
+st.subheader("Tableau Final")
+
+tableau_df = pd.DataFrame(result["tableau"])
+
+st.dataframe(tableau_df)
