@@ -127,10 +127,12 @@ if st.button("Resolver Problema"):
         objective_coeffs,
         constraints
     )
+
     solver = SimplexSolver(
-    objective=problem_data["objective"],
-    constraints=problem_data["constraints"]
+        objective=problem_data["objective"],
+        constraints=problem_data["constraints"]
     )
+
     result = solver.solve()
 
     st.success("Problema cargado correctamente")
@@ -144,23 +146,19 @@ if st.button("Resolver Problema"):
     st.write(problem_data["objective"])
 
     st.write("### Restricciones")
-
     constraints_df = pd.DataFrame(problem_data["constraints"])
     st.dataframe(constraints_df)
 
     st.subheader("Resultado Óptimo")
 
-st.write("### Variables de decisión")
+    st.write("### Variables de decisión")
 
-for i, value in enumerate(result["solution"]):
-    st.write(f"X{i+1} = {value:.2f}")
+    for i, value in enumerate(result["solution"]):
+        st.write(f"X{i+1} = {value:.2f}")
 
-st.write("### Valor Óptimo")
+    st.write("### Valor Óptimo")
+    st.success(f"Z = {result['optimal_value']:.2f}")
 
-st.success(f"Z = {result['optimal_value']:.2f}")
-
-st.subheader("Tableau Final")
-
-tableau_df = pd.DataFrame(result["tableau"])
-
-st.dataframe(tableau_df)
+    st.subheader("Tableau Final")
+    tableau_df = pd.DataFrame(result["tableau"])
+    st.dataframe(tableau_df)
