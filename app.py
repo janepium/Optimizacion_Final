@@ -264,6 +264,8 @@ if st.button("Resolver Problema"):
 
     st.subheader("Tableau Final")
 
+
+
     num_slack_variables = len(problem_data["constraints"])
 
     column_names = []
