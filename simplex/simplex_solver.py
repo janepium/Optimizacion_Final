@@ -78,7 +78,7 @@ class SimplexSolver:
         last_row = self.tableau[-1, :-1]
 
         # Entra la variable con el coeficiente más negativo
-        return np.argmin(last_row)
+        return int(np.argmin(last_row))
 
     def get_pivot_row(self, pivot_col):
 
@@ -96,7 +96,24 @@ class SimplexSolver:
             ratios.append(ratio)
 
         # Sale la variable con la menor razón positiva
-        return np.argmin(ratios)
+        return int(np.argmin(ratios))
+
+    def get_ratios(self, pivot_col):
+
+        ratios = []
+
+        for i in range(self.num_constraints):
+
+            element = self.tableau[i, pivot_col]
+
+            if element > 0:
+                ratio = self.tableau[i, -1] / element
+            else:
+                ratio = np.inf
+
+            ratios.append(ratio)
+
+        return ratios
 
     def pivot(self, pivot_row, pivot_col):
 
@@ -126,7 +143,20 @@ class SimplexSolver:
         iterations = []
 
         # Guardamos el tablero inicial
-        iterations.append(self.tableau.copy())
+        iterations.append({
+            "iteration": 0,
+            "tableau": self.tableau.copy(),
+            "basic_variables": self.basic_variables.copy(),
+            "basic_variables_before": self.basic_variables.copy(),
+            "entering_variable": None,
+            "leaving_variable": None,
+            "pivot_element": None,
+            "ratios": None,
+            "message": (
+                "Tableau inicial. Se revisa la fila Z para buscar coeficientes negativos. "
+                "Si existen coeficientes negativos, la solución aún no es óptima."
+            )
+        })
 
         while not self.is_optimal():
 
@@ -134,27 +164,47 @@ class SimplexSolver:
 
             pivot_row = self.get_pivot_row(pivot_col)
 
+            ratios = self.get_ratios(pivot_col)
+
+            entering_variable = self.get_variable_name(pivot_col)
+            leaving_variable = self.basic_variables[pivot_row]
+            pivot_element = self.tableau[pivot_row, pivot_col]
+
+            basic_variables_before = self.basic_variables.copy()
+
             # Actualizamos la variable básica de la fila pivote.
             # La variable que entra reemplaza a la que sale.
-            self.basic_variables[pivot_row] = self.get_variable_name(pivot_col)
+            self.basic_variables[pivot_row] = entering_variable
 
             self.pivot(pivot_row, pivot_col)
 
             # Guardamos cada tablero después del pivoteo
-            iterations.append(self.tableau.copy())
+            iterations.append({
+                "iteration": len(iterations),
+                "tableau": self.tableau.copy(),
+                "basic_variables": self.basic_variables.copy(),
+                "basic_variables_before": basic_variables_before,
+                "entering_variable": entering_variable,
+                "leaving_variable": leaving_variable,
+                "pivot_element": pivot_element,
+                "ratios": ratios,
+                "message": (
+                    f"Entra {entering_variable}, sale {leaving_variable}. "
+                    f"El elemento pivote es {pivot_element:.4f}."
+                )
+            })
 
         solution = np.zeros(self.num_variables)
 
-        # Extraemos la solución final de las columnas básicas
-        for j in range(self.num_variables):
+        # Extraemos la solución final usando las variables básicas finales
+        for row_index, variable_name in enumerate(self.basic_variables):
 
-            column = self.tableau[:, j]
+            if variable_name.startswith("X"):
 
-            if np.count_nonzero(column[:-1]) == 1 and np.sum(column[:-1]) == 1:
+                variable_index = int(variable_name[1:]) - 1
 
-                row = np.where(column[:-1] == 1)[0][0]
-
-                solution[j] = self.tableau[row, -1]
+                if variable_index < self.num_variables:
+                    solution[variable_index] = self.tableau[row_index, -1]
 
         optimal_value = self.tableau[-1, -1]
 
