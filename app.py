@@ -172,14 +172,14 @@ def show_simplex_iterations(result, problem_data, num_variables):
             num_constraints=num_constraints
         )
 
-        st.write("##### Tableau")
+        st.write("##### Tablero simplex")
         st.dataframe(tableau_df, use_container_width=True)
 
     # =========================
-    # TABLEAU FINAL
+    # TABLERO SIMPLEX FINAL
     # =========================
 
-    st.write("### Tableau final")
+    st.write("### Tablero simplex final")
 
     final_tableau_df = build_tableau_dataframe(
         tableau=result["tableau"],
@@ -191,7 +191,7 @@ def show_simplex_iterations(result, problem_data, num_variables):
     st.dataframe(final_tableau_df, use_container_width=True)
 
     st.info(
-        "En el tableau final, las filas indican las variables básicas. "
+        "En el tablero simplex final, las filas indican las variables básicas. "
         "La columna RHS muestra el valor final de cada variable básica. "
         "La última fila corresponde a la función objetivo."
     )
